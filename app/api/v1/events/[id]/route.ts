@@ -1,12 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
-import { authorizeAgent } from "@/lib/auth";
+import { authorizeUserOrAgent } from "@/lib/auth";
 
 type Context = { params: Promise<{ id: string }> };
 
 export async function GET(request: NextRequest, context: Context) {
-  const denied = authorizeAgent(request);
+  const denied = authorizeUserOrAgent(request);
   if (denied) return denied;
   const { id } = await context.params;
   const event = await prisma.event.findUnique({ where: { id }, include: { decisions: true, reflections: true, revisions: { orderBy: { changedAt: 'desc' } }, lessonLinks: { include: { lesson: true } }, policyLinks: { include: { policy: true } } } });
@@ -26,7 +26,7 @@ const patchSchema = z.object({
 });
 
 export async function PATCH(request: NextRequest, context: Context) {
-  const denied = authorizeAgent(request);
+  const denied = authorizeUserOrAgent(request);
   if (denied) return denied;
   const { id } = await context.params;
   const parsed = patchSchema.safeParse(await request.json());
@@ -52,7 +52,7 @@ export async function PATCH(request: NextRequest, context: Context) {
 }
 
 export async function DELETE(request: NextRequest, context: Context) {
-  const denied = authorizeAgent(request);
+  const denied = authorizeUserOrAgent(request);
   if (denied) return denied;
   const { id } = await context.params;
   try {
