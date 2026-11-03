@@ -7,7 +7,7 @@
 - Event create/list/read/update/archive API with immutable narrative snapshots on edits.
 - Decision create/list API with optional source event and preserved rationale.
 - Reflection, lesson, policy and outcome data models.
-- Lesson and policy proposal APIs with explicit accept/revise/retire actions.
+- Reflection, lesson and policy proposal APIs with explicit accept/revise/retire review actions.
 - Deterministic text-and-tag event search.
 - Decision brief endpoint that returns source-linked event history and accepted lessons/policies.
 - Agent requests use a bearer token; owner browser sessions are also accepted by the private REST API. No model provider or model API key is required.
@@ -32,6 +32,7 @@ The dashboard requires a working database at render time. The owner password and
 - `GET/PATCH/DELETE /api/v1/events/:id`
 - `GET/POST /api/v1/decisions`
 - `GET/POST /api/v1/reflections`
+- `POST /api/v1/reflections/:id/review`
 - `GET/POST /api/v1/outcomes`
 - `GET/POST /api/v1/lessons`
 - `POST /api/v1/lessons/:id/review`
@@ -43,7 +44,7 @@ The dashboard requires a working database at render time. The owner password and
 
 MCP endpoint: `POST /mcp` (stateless MCP HTTP, JSON response mode with legacy Streamable HTTP compatibility). Send the same `Authorization: Bearer $FUND_AGENT_TOKEN` header.
 
-Lesson and policy proposals remain `PROPOSED` until explicitly accepted. Source event IDs are mandatory for both.
+Agent reflection, lesson and policy proposals remain `PROPOSED` until explicitly accepted. Source event IDs are mandatory for both.
 
 ## Known gaps before production
 
