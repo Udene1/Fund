@@ -16,7 +16,7 @@ export default async function Home() {
     prisma.decision.count(),
     prisma.lesson.count(),
     prisma.policy.count({ where: { status: "ACCEPTED" } }),
-    prisma.lesson.count({ where: { status: "PROPOSED" } }).then(async lessons => lessons + await prisma.policy.count({ where: { status: "PROPOSED" } })),
+    Promise.all([prisma.lesson.count({ where: { status: "PROPOSED" } }), prisma.policy.count({ where: { status: "PROPOSED" } }), prisma.reflection.count({ where: { status: "PROPOSED" } })]).then(counts => counts.reduce((sum, count) => sum + count, 0)),
     prisma.event.findMany({ where: { archivedAt: null }, orderBy: { capturedAt: "desc" }, take: 8 }),
   ]);
   return <main className="shell">
