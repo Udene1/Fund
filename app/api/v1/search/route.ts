@@ -19,7 +19,7 @@ export async function POST(request: NextRequest) {
   const events = await prisma.event.findMany({
     where: {
       archivedAt: null,
-      AND: terms.map(term => ({ OR: [
+      OR: terms.map(term => ({ OR: [
         { title: { contains: term, mode: "insensitive" } },
         { originalAccount: { contains: term, mode: "insensitive" } },
         { context: { contains: term, mode: "insensitive" } },
