@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
-import { authorizeAgent } from "@/lib/auth";
+import { authorizeUserOrAgent } from "@/lib/auth";
 
 const schema = z.object({
   query: z.string().trim().min(1).max(500),
@@ -10,7 +10,7 @@ const schema = z.object({
 });
 
 export async function POST(request: NextRequest) {
-  const denied = authorizeAgent(request);
+  const denied = authorizeUserOrAgent(request);
   if (denied) return denied;
   const parsed = schema.safeParse(await request.json());
   if (!parsed.success) return NextResponse.json({ error: "Invalid search", details: parsed.error.flatten() }, { status: 400 });
