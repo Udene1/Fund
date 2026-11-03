@@ -108,6 +108,53 @@ const handler = createMcpHandler(() => {
     return { content: [{ type: "text", text: JSON.stringify({ policy, status: "PROPOSED", requiresUserApproval: true }) }] };
   });
 
+  server.registerTool("propose_reflection", {
+    description: "Attach an agent-authored analysis to an event. It remains a proposal and must not be represented as user-authored fact.",
+    inputSchema: z.object({
+      eventId: z.string().min(1), observations: z.string().max(10000).optional(),
+      interpretation: z.string().max(10000).optional(), alternatives: z.string().max(10000).optional(),
+      unresolvedQuestions: z.string().max(10000).optional(), agentName: z.string().max(120).optional(),
+      provider: z.string().max(120).optional(), model: z.string().max(120).optional(),
+    }),
+  }, async input => {
+    const event = await prisma.event.findFirst({ where: { id: input.eventId, archivedAt: null } });
+    if (!event) return { content: [{ type: "text", text: "Source event not found." }], isError: true };
+    const reflection = await prisma.reflection.create({ data: { ...input, authorType: "AGENT", status: "PROPOSED" }, include: { event: true } });
+    return { content: [{ type: "text", text: JSON.stringify({ reflection, status: "PROPOSED" }) }] };
+  });
+
+  server.registerTool("review_lesson", {
+    description: "Accept, revise or retire a proposed lesson. Acceptance is an explicit user-authorized action.",
+    inputSchema: z.object({ lessonId: z.string().min(1), action: z.enum(["accept","revise","retire"]), statement: z.string().min(1).max(5000).optional(), limitations: z.string().max(5000).optional() }),
+  }, async ({ lessonId, action, statement, limitations }) => {
+    if (action === "revise" && !statement) return { content: [{ type: "text", text: "A revised statement is required." }], isError: true };
+    try {
+      const lesson = await prisma.lesson.update({ where: { id: lessonId }, data: {
+        status: action === "accept" ? "ACCEPTED" : action === "retire" ? "RETIRED" : "REVISED",
+        ...(statement ? { statement } : {}), ...(limitations !== undefined ? { limitations } : {}),
+      }, include: { events: { include: { event: true } } } });
+      return { content: [{ type: "text", text: JSON.stringify(lesson) }] };
+    } catch { return { content: [{ type: "text", text: "Lesson not found." }], isError: true }; }
+  });
+
+  server.registerTool("review_policy", {
+    description: "Accept, revise or retire a proposed policy. Acceptance makes it active; the user must explicitly authorize this action.",
+    inputSchema: z.object({
+      policyId: z.string().min(1), action: z.enum(["accept","revise","retire"]),
+      title: z.string().min(1).max(160).optional(), triggerConditions: z.string().min(1).max(5000).optional(),
+      response: z.string().min(1).max(5000).optional(), rationale: z.string().max(5000).optional(), exceptions: z.string().max(5000).optional(),
+    }),
+  }, async ({ policyId, action, ...fields }) => {
+    if (action === "revise" && (!fields.title || !fields.triggerConditions || !fields.response)) return { content: [{ type: "text", text: "Revision requires title, triggerConditions and response." }], isError: true };
+    try {
+      const policy = await prisma.policy.update({ where: { id: policyId }, data: {
+        status: action === "accept" ? "ACCEPTED" : action === "retire" ? "RETIRED" : "REVISED",
+        ...(action === "revise" ? fields : {}), ...(action === "accept" ? { lastReviewedAt: new Date() } : {}),
+      }, include: { events: { include: { event: true } } } });
+      return { content: [{ type: "text", text: JSON.stringify(policy) }] };
+    } catch { return { content: [{ type: "text", text: "Policy not found." }], isError: true }; }
+  });
+
   server.registerTool("review_decision", {
     description: "Retrieve related event history, accepted lessons and policies for a current situation. Treat lexical matches as candidates, not proof.",
     inputSchema: z.object({ situation: z.string().min(1).max(5000), tags: z.array(z.string()).max(20).optional(), limit: z.number().int().min(1).max(30).optional() }),
