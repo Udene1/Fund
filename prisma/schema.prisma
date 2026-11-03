@@ -1,0 +1,123 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum RecordStatus {
+  PROPOSED
+  ACCEPTED
+  REVISED
+  RETIRED
+}
+
+model Event {
+  id             String   @id @default(cuid())
+  title          String
+  originalAccount String  @db.Text
+  occurredAt     DateTime?
+  occurredAtNote String?
+  capturedAt     DateTime @default(now())
+  context        String?  @db.Text
+  tags           String[] @default([])
+  importance     Int      @default(3)
+  archivedAt     DateTime?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  decisions      Decision[]
+  reflections    Reflection[]
+  lessonLinks    LessonEvent[]
+  policyLinks    PolicyEvent[]
+
+  @@index([capturedAt])
+  @@index([occurredAt])
+  @@index([archivedAt])
+}
+
+model Decision {
+  id          String   @id @default(cuid())
+  title       String
+  decision    String   @db.Text
+  rationale   String?  @db.Text
+  options     Json?
+  constraints String?  @db.Text
+  confidence  Float?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  eventId     String?
+  event       Event?   @relation(fields: [eventId], references: [id], onDelete: SetNull)
+  outcomes    Outcome[]
+}
+
+model Reflection {
+  id                  String   @id @default(cuid())
+  eventId             String
+  observations        String?  @db.Text
+  interpretation      String?  @db.Text
+  alternatives        String?  @db.Text
+  unresolvedQuestions String?  @db.Text
+  authorType          String
+  agentName           String?
+  provider             String?
+  model                String?
+  status               RecordStatus @default(PROPOSED)
+  createdAt            DateTime @default(now())
+  event                Event @relation(fields: [eventId], references: [id], onDelete: Cascade)
+}
+
+model Lesson {
+  id          String   @id @default(cuid())
+  statement   String   @db.Text
+  limitations String?  @db.Text
+  confidence  Float?
+  status      RecordStatus @default(PROPOSED)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  events      LessonEvent[]
+}
+
+model LessonEvent {
+  lessonId String
+  eventId  String
+  lesson   Lesson @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  event    Event  @relation(fields: [eventId], references: [id], onDelete: Cascade)
+
+  @@id([lessonId, eventId])
+}
+
+model Policy {
+  id                 String   @id @default(cuid())
+  title              String
+  triggerConditions  String   @db.Text
+  response           String   @db.Text
+  rationale          String?  @db.Text
+  exceptions         String?  @db.Text
+  safetyConsiderations String? @db.Text
+  status             RecordStatus @default(PROPOSED)
+  lastReviewedAt     DateTime?
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+  events             PolicyEvent[]
+}
+
+model PolicyEvent {
+  policyId String
+  eventId  String
+  policy   Policy @relation(fields: [policyId], references: [id], onDelete: Cascade)
+  event    Event  @relation(fields: [eventId], references: [id], onDelete: Cascade)
+
+  @@id([policyId, eventId])
+}
+
+model Outcome {
+  id          String   @id @default(cuid())
+  decisionId  String?
+  observed    String   @db.Text
+  expected    String?  @db.Text
+  followUpAt  DateTime?
+  createdAt   DateTime @default(now())
+  decision    Decision? @relation(fields: [decisionId], references: [id], onDelete: SetNull)
+}
