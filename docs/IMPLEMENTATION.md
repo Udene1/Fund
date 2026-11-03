@@ -4,7 +4,7 @@
 
 - Next.js App Router dashboard shell.
 - PostgreSQL persistence through Prisma.
-- Event create/list/read/update/archive API.
+- Event create/list/read/update/archive API with immutable narrative snapshots on edits.
 - Decision create/list API with optional source event and preserved rationale.
 - Reflection, lesson, policy and outcome data models.
 - Lesson and policy proposal APIs with explicit accept/revise/retire actions.
@@ -28,7 +28,7 @@ The dashboard currently requires a working database at render time. The API requ
 
 - `GET/POST /api/v1/events`
 - `GET/PATCH/DELETE /api/v1/events/:id`
-- `GET/POST /api/v1/decisions`
+- `GET/POST /api/v1/decisions`\n- `GET/POST /api/v1/reflections`\n- `GET/POST /api/v1/outcomes`
 - `GET/POST /api/v1/lessons`
 - `POST /api/v1/lessons/:id/review`
 - `GET/POST /api/v1/policies`
@@ -41,7 +41,7 @@ Lesson and policy proposals remain `PROPOSED` until explicitly accepted. Source 
 ## Known gaps before production
 
 - Human sign-in/session UX and browser event capture are not implemented.
-- Reflection and outcome write/read routes are not implemented yet.
+- Reflection and outcome read/write routes are implemented. Agent reflections remain proposed and carry optional provenance.
 - Policy revision history and a general audit log need implementation.
 - MCP adapter is not implemented yet.
 - Search is lexical and deterministic, not semantic; decision briefs can miss paraphrases and counterexamples.
