@@ -38,7 +38,7 @@ The dashboard requires a working database at render time. The owner password and
 - `GET/POST /api/v1/policies`
 - `POST /api/v1/policies/:id/review`
 - `POST /api/v1/search`
-- `POST /api/v1/decision-briefs`
+- `POST /api/v1/decision-briefs`\n- `GET /api/v1/export` (full JSON backup, owner session or agent token)
 
 MCP endpoint: `POST /mcp` (stateless MCP HTTP, JSON response mode with legacy Streamable HTTP compatibility). Send the same `Authorization: Bearer $FUND_AGENT_TOKEN` header.
 
@@ -50,6 +50,6 @@ Lesson and policy proposals remain `PROPOSED` until explicitly accepted. Source 
 - Reflection and outcome read/write routes are implemented. Owner reflections are marked `USER`; agent reflections remain proposed and carry optional provenance.
 - Policy revision history and a general audit log need implementation.
 - Search is lexical and deterministic, not semantic; decision briefs can miss paraphrases and counterexamples.
-- No migrations have been generated or applied; first database setup currently uses `prisma db push`.
+- Full JSON export is implemented; deletion controls and policy revision history remain outstanding.\n- No migrations have been generated or applied; first database setup currently uses `prisma db push`.
 - Unit tests and CI validation are configured; check the latest GitHub Actions run before treating the build as verified.
-- Before production use with sensitive personal records, add rate limiting/login throttling, backups and restore tests, export and deletion controls, and validate the app in a real deployment. The owner password is a simple single-owner gate, not multi-user identity management.
+- Before production use with sensitive personal records, add rate limiting/login throttling, backups and restore tests, deletion controls, and validate the app in a real deployment. The owner password is a simple single-owner gate, not multi-user identity management.
