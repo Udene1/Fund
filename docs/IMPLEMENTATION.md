@@ -22,11 +22,11 @@
 6. Run `npx prisma db push`.
 7. Run `npm run dev`.
 
-The dashboard requires a working database at render time. The owner password and session secret must be configured in the hosting environment; never commit `.env`. Agent APIs require `Authorization: Bearer $FUND_AGENT_TOKEN`. The browser dashboard requires a valid signed session cookie. Browser capture uses `POST /api/v1/capture`.
+The dashboard requires a working database at render time. The owner password and session secret must be configured in the hosting environment; never commit `.env`. API routes accept the signed owner session or `Authorization: Bearer $FUND_AGENT_TOKEN`, except the MCP endpoint, which requires the agent token. The browser dashboard requires a valid signed session cookie. Browser capture uses `POST /api/v1/capture`. Event detail pages support owner-authored decisions and reflections; `/review` is the approval queue for proposed lessons and policies.
 
 ## API
 
-- `GET/POST /api/v1/events` (agent token)
+- `GET/POST /api/v1/events` (owner session or agent token)
 - `POST /api/v1/capture` (owner session or agent token)
 - `POST /api/auth/login` and `POST /api/auth/logout`
 - `GET/PATCH/DELETE /api/v1/events/:id`
@@ -40,16 +40,16 @@ The dashboard requires a working database at render time. The owner password and
 - `POST /api/v1/search`
 - `POST /api/v1/decision-briefs`
 
-MCP endpoint: `POST /mcp` (Streamable HTTP, JSON response mode). Send the same `Authorization: Bearer $FUND_AGENT_TOKEN` header.
+MCP endpoint: `POST /mcp` (stateless MCP HTTP, JSON response mode with legacy Streamable HTTP compatibility). Send the same `Authorization: Bearer $FUND_AGENT_TOKEN` header.
 
 Lesson and policy proposals remain `PROPOSED` until explicitly accepted. Source event IDs are mandatory for both.
 
 ## Known gaps before production
 
-- Single-owner password sign-in, signed 14-day HTTP-only sessions, sign-out, protected dashboard and browser event capture are implemented. Configure `FUND_OWNER_PASSWORD` and `FUND_SESSION_SECRET`.
-- Reflection and outcome read/write routes are implemented. Agent reflections remain proposed and carry optional provenance.
+- Single-owner password sign-in, random signed 14-day HTTP-only sessions, sign-out, protected dashboard and browser event capture are implemented. Configure `FUND_OWNER_PASSWORD` and `FUND_SESSION_SECRET`.
+- Reflection and outcome read/write routes are implemented. Owner reflections are marked `USER`; agent reflections remain proposed and carry optional provenance.
 - Policy revision history and a general audit log need implementation.
 - Search is lexical and deterministic, not semantic; decision briefs can miss paraphrases and counterexamples.
-- No migrations have been generated or applied.
+- No migrations have been generated or applied; first database setup currently uses `prisma db push`.
 - Unit tests and CI validation are configured; check the latest GitHub Actions run before treating the build as verified.
 - Before production use with sensitive personal records, add rate limiting/login throttling, backups and restore tests, export and deletion controls, and validate the app in a real deployment. The owner password is a simple single-owner gate, not multi-user identity management.
