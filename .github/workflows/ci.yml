@@ -22,4 +22,4 @@ jobs:
       - run: npx prisma generate
         env:
           DATABASE_URL: postgresql://user:password@localhost:5432/fund
-      - run: npm run typecheck
+      - run: npm run typecheck\n      - run: npm test\n      - run: npm run lint
