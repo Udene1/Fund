@@ -10,7 +10,7 @@
 - Lesson and policy proposal APIs with explicit accept/revise/retire actions.
 - Deterministic text-and-tag event search.
 - Decision brief endpoint that returns source-linked event history and accepted lessons/policies.
-- Agent API requests are protected by a bearer token; no model provider or model API key is required.
+- Agent requests use a bearer token; owner browser sessions are also accepted by the private REST API. No model provider or model API key is required.
 
 ## Local setup
 
