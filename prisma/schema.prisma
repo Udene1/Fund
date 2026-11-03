@@ -31,6 +31,7 @@ model Event {
   reflections    Reflection[]
   lessonLinks    LessonEvent[]
   policyLinks    PolicyEvent[]
+  revisions      EventRevision[]
 
   @@index([capturedAt])
   @@index([occurredAt])
@@ -120,4 +121,16 @@ model Outcome {
   followUpAt  DateTime?
   createdAt   DateTime @default(now())
   decision    Decision? @relation(fields: [decisionId], references: [id], onDelete: SetNull)
+}
+
+model EventRevision {
+  id              String   @id @default(cuid())
+  eventId         String
+  title           String
+  originalAccount String   @db.Text
+  changedAt       DateTime @default(now())
+  changeNote      String?
+  event           Event    @relation(fields: [eventId], references: [id], onDelete: Cascade)
+
+  @@index([eventId, changedAt])
 }
