@@ -1,13 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
-import { authorizeAgent } from "@/lib/auth";
+import { authorizeUserOrAgent } from "@/lib/auth";
 
 type Context = { params: Promise<{ id: string }> };
 const schema = z.object({ action: z.enum(["accept","revise","retire"]), statement: z.string().trim().min(1).max(5000).optional(), limitations: z.string().max(5000).optional() });
 
 export async function POST(request: NextRequest, context: Context) {
-  const denied = authorizeAgent(request);
+  const denied = authorizeUserOrAgent(request);
   if (denied) return denied;
   const { id } = await context.params;
   const parsed = schema.safeParse(await request.json());
