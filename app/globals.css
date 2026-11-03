@@ -29,3 +29,8 @@
 .status{font:9px 'DM Mono';letter-spacing:1px;color:var(--green);text-transform:uppercase}
 .detail-card small{font-size:11px;color:var(--muted);line-height:1.6}.revision{opacity:.8}
 .detail-shell footer{margin-top:32px}
+
+.action-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-top:18px}
+.action-form{background:#fffefa;border:1px solid var(--line);padding:20px}
+.action-form h3{font-size:17px;margin:0 0 8px}
+@media(max-width:700px){.action-grid{grid-template-columns:1fr}}
