@@ -30,6 +30,6 @@ export async function POST(request: NextRequest) {
   const input = parsed.data;
   const event = await prisma.event.findFirst({ where: { id: input.eventId, archivedAt: null } });
   if (!event) return NextResponse.json({ error: "Source event not found" }, { status: 404 });
-  const data = await prisma.reflection.create({ data: { ...input, authorType: hasUserSession(request) ? "USER" : "AGENT", status: "PROPOSED" }, include: { event: true } });
-  return NextResponse.json({ data, note: "Agent reflection is stored as a proposal, not as verified fact." }, { status: 201 });
+  const data = await prisma.reflection.create({ data: { ...input, authorType: hasUserSession(request) ? "USER" : "AGENT", status: hasUserSession(request) ? "ACCEPTED" : "PROPOSED" }, include: { event: true } });
+  return NextResponse.json({ data, note: hasUserSession(request) ? "Your reflection is stored as your own account." : "Agent reflection is stored as a proposal, not as verified fact." }, { status: 201 });
 }
