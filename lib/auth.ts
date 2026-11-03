@@ -1,18 +1,41 @@
-import { timingSafeEqual } from "node:crypto";
+import { createHmac, timingSafeEqual } from "node:crypto";
 import { NextRequest, NextResponse } from "next/server";
 
-export function authorizeAgent(request: NextRequest): NextResponse | null {
-  const expected = process.env.FUND_AGENT_TOKEN;
-  const supplied = request.headers.get("authorization")?.replace(/^Bearer\s+/i, "");
+const SESSION_COOKIE = "fund_session";
+const SESSION_TTL_SECONDS = 60 * 60 * 24 * 14;
 
-  if (!expected || !supplied) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
-
-  const a = Buffer.from(expected);
-  const b = Buffer.from(supplied);
-  if (a.length !== b.length || !timingSafeEqual(a, b)) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
-  return null;
+function safeEqual(a: string, b: string) {
+  const left = Buffer.from(a); const right = Buffer.from(b);
+  return left.length === right.length && timingSafeEqual(left, right);
 }
+export function verifyAgentToken(request: NextRequest): boolean {
+  const expected = process.env.FUND_AGENT_TOKEN;
+  const supplied = request.headers.get("authorization")?.replace(/^Bearer\\s+/i, "");
+  return Boolean(expected && supplied && safeEqual(expected, supplied));
+}
+export function authorizeAgent(request: NextRequest): NextResponse | null {
+  return verifyAgentToken(request) ? null : NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+}
+function sessionSecret() { return process.env.FUND_SESSION_SECRET; }
+export function createSessionToken(now = Date.now()) {
+  const secret = sessionSecret();
+  if (!secret || secret.length < 32) throw new Error("FUND_SESSION_SECRET must contain at least 32 characters");
+  const payload = String(Math.floor(now / 1000) + SESSION_TTL_SECONDS);
+  return payload + "." + createHmac("sha256", secret).update(payload).digest("base64url");
+}
+export function verifySessionToken(token?: string | null, now = Date.now()): boolean {
+  const secret = sessionSecret();
+  if (!secret || secret.length < 32 || !token) return false;
+  const [payload, signature, extra] = token.split(".");
+  if (!payload || !signature || extra || !/^\\d+$/.test(payload)) return false;
+  const expected = createHmac("sha256", secret).update(payload).digest("base64url");
+  return safeEqual(expected, signature) && Number(payload) > Math.floor(now / 1000);
+}
+export function hasUserSession(request: NextRequest) {
+  return verifySessionToken(request.cookies.get(SESSION_COOKIE)?.value);
+}
+export function authorizeUserOrAgent(request: NextRequest): NextResponse | null {
+  return verifyAgentToken(request) || hasUserSession(request) ? null : NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+}
+export const sessionCookieName = SESSION_COOKIE;
+export const sessionTtlSeconds = SESSION_TTL_SECONDS;
