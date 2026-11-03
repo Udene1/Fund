@@ -26,7 +26,7 @@ export default async function Home() {
     <section className="capture"><div><p className="eyebrow">CAPTURE A MOMENT</p><h2>Don&apos;t lose the original story.</h2><p className="muted">Save the account first. Structure and interpretation can come later. You can write rough notes; the original account is preserved.</p></div><CaptureForm/></section>
     <section className="recent"><div className="section-heading"><div><p className="eyebrow">YOUR RECORD</p><h2>Recently captured</h2></div><span>{eventCount} total</span></div>
     {recentEvents.length?<div className="event-list">{recentEvents.map(event=><article className="event" key={event.id}><div className="event-date">{event.occurredAt?event.occurredAt.toLocaleDateString():"DATE UNKNOWN"}</div><div><h3><Link href={"/events/"+event.id}>{event.title}</Link></h3><p>{event.originalAccount.slice(0,180)}{event.originalAccount.length>180?"…":""}</p></div><span className="event-id">{event.id.slice(-6)}</span></article>)}</div>:<div className="empty">No events yet. Capture the first one above.</div>}</section>
-    <footer>Fund is model-independent. Your records remain yours; no AI provider is required.</footer>
+    <footer>Fund is model-independent. Your records remain yours; no AI provider is required. <Link href="/api/v1/export" className="export-link">Download a full backup →</Link></footer>
   </main>;
 }
 function Stat({label,value}:{label:string;value:number}){return <div className="stat"><strong>{value.toString().padStart(2,"0")}</strong><span>{label}</span></div>}
