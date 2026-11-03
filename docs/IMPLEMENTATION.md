@@ -34,7 +34,7 @@ The dashboard currently requires a working database at render time. The API requ
 - `GET/POST /api/v1/policies`
 - `POST /api/v1/policies/:id/review`
 - `POST /api/v1/search`
-- `POST /api/v1/decision-briefs`
+- `POST /api/v1/decision-briefs`\n\nMCP endpoint: `POST /mcp` (Streamable HTTP, JSON response mode). Send the same `Authorization: Bearer $FUND_AGENT_TOKEN` header.
 
 Lesson and policy proposals remain `PROPOSED` until explicitly accepted. Source event IDs are mandatory for both.
 
@@ -43,7 +43,7 @@ Lesson and policy proposals remain `PROPOSED` until explicitly accepted. Source 
 - Human sign-in/session UX and browser event capture are not implemented.
 - Reflection and outcome read/write routes are implemented. Agent reflections remain proposed and carry optional provenance.
 - Policy revision history and a general audit log need implementation.
-- MCP adapter is not implemented yet.
+- Stateless Streamable HTTP MCP endpoint at `/mcp`, protected by the same bearer token as REST. Tools cover event capture/read/search, decision recording/review, reflection proposals, lesson/policy proposals and approvals, and outcome recording.
 - Search is lexical and deterministic, not semantic; decision briefs can miss paraphrases and counterexamples.
 - No migrations have been generated or applied.
 - No automated tests or deployment validation have been run.
