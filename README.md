@@ -36,4 +36,4 @@ AI-assisted analysis and semantic retrieval will be added only with clear proven
 
 ## Status
 
-The app now includes a password-protected single-owner dashboard, signed HTTP-only sessions, browser event capture, event detail/history views, owner decision/reflection capture, and a lesson/policy approval queue, PostgreSQL/Prisma persistence, authenticated agent APIs, deterministic search, decision briefs, and a bearer-protected MCP endpoint. No model-provider keys or AI SDK are required. See [implementation status](docs/IMPLEMENTATION.md) for setup instructions and known gaps.
+The app now includes a password-protected single-owner dashboard, signed HTTP-only sessions, browser event capture, event detail/history views, owner decision/reflection capture, and a review queue for agent reflections, lessons and policies, PostgreSQL/Prisma persistence, authenticated agent APIs, deterministic search, decision briefs, and a bearer-protected MCP endpoint. No model-provider keys or AI SDK are required. See [implementation status](docs/IMPLEMENTATION.md) for setup instructions and known gaps.
