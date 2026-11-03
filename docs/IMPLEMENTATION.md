@@ -16,25 +16,31 @@
 
 1. Copy `.env.example` to `.env`.
 2. Set a private PostgreSQL `DATABASE_URL`.
-3. Generate a long random `FUND_AGENT_TOKEN`.
+3. Generate a long random `FUND_AGENT_TOKEN`, `FUND_SESSION_SECRET` (at least 32 characters), and a unique `FUND_OWNER_PASSWORD`.
 4. Run `npm install`.
 5. Run `npx prisma generate`.
 6. Run `npx prisma db push`.
 7. Run `npm run dev`.
 
-The dashboard currently requires a working database at render time. Agent APIs require `Authorization: Bearer $FUND_AGENT_TOKEN`. The browser dashboard requires a valid signed session cookie. Browser capture uses `POST /api/v1/capture`.
+The dashboard requires a working database at render time. The owner password and session secret must be configured in the hosting environment; never commit `.env`. Agent APIs require `Authorization: Bearer $FUND_AGENT_TOKEN`. The browser dashboard requires a valid signed session cookie. Browser capture uses `POST /api/v1/capture`.
 
 ## API
 
-- `GET/POST /api/v1/events` (agent token)\n- `POST /api/v1/capture` (owner session or agent token)\n- `POST /api/auth/login` and `POST /api/auth/logout`
+- `GET/POST /api/v1/events` (agent token)
+- `POST /api/v1/capture` (owner session or agent token)
+- `POST /api/auth/login` and `POST /api/auth/logout`
 - `GET/PATCH/DELETE /api/v1/events/:id`
-- `GET/POST /api/v1/decisions`\n- `GET/POST /api/v1/reflections`\n- `GET/POST /api/v1/outcomes`
+- `GET/POST /api/v1/decisions`
+- `GET/POST /api/v1/reflections`
+- `GET/POST /api/v1/outcomes`
 - `GET/POST /api/v1/lessons`
 - `POST /api/v1/lessons/:id/review`
 - `GET/POST /api/v1/policies`
 - `POST /api/v1/policies/:id/review`
 - `POST /api/v1/search`
-- `POST /api/v1/decision-briefs`\n\nMCP endpoint: `POST /mcp` (Streamable HTTP, JSON response mode). Send the same `Authorization: Bearer $FUND_AGENT_TOKEN` header.
+- `POST /api/v1/decision-briefs`
+
+MCP endpoint: `POST /mcp` (Streamable HTTP, JSON response mode). Send the same `Authorization: Bearer $FUND_AGENT_TOKEN` header.
 
 Lesson and policy proposals remain `PROPOSED` until explicitly accepted. Source event IDs are mandatory for both.
 
@@ -43,7 +49,6 @@ Lesson and policy proposals remain `PROPOSED` until explicitly accepted. Source 
 - Single-owner password sign-in, signed 14-day HTTP-only sessions, sign-out, protected dashboard and browser event capture are implemented. Configure `FUND_OWNER_PASSWORD` and `FUND_SESSION_SECRET`.
 - Reflection and outcome read/write routes are implemented. Agent reflections remain proposed and carry optional provenance.
 - Policy revision history and a general audit log need implementation.
-
 - Search is lexical and deterministic, not semantic; decision briefs can miss paraphrases and counterexamples.
 - No migrations have been generated or applied.
 - Unit tests and CI validation are configured; check the latest GitHub Actions run before treating the build as verified.
