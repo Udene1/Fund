@@ -43,8 +43,8 @@ Lesson and policy proposals remain `PROPOSED` until explicitly accepted. Source 
 - Single-owner password sign-in, signed 14-day HTTP-only sessions, sign-out, protected dashboard and browser event capture are implemented. Configure `FUND_OWNER_PASSWORD` and `FUND_SESSION_SECRET`.
 - Reflection and outcome read/write routes are implemented. Agent reflections remain proposed and carry optional provenance.
 - Policy revision history and a general audit log need implementation.
-- Stateless Streamable HTTP MCP endpoint at `/mcp`, protected by the same bearer token as REST. Tools cover event capture/read/search, decision recording/review, reflection proposals, lesson/policy proposals and approvals, and outcome recording.
+
 - Search is lexical and deterministic, not semantic; decision briefs can miss paraphrases and counterexamples.
 - No migrations have been generated or applied.
-- No automated tests or deployment validation have been run.
+- Unit tests and CI validation are configured; check the latest GitHub Actions run before treating the build as verified.
 - Before production use with sensitive personal records, add rate limiting/login throttling, backups and restore tests, export and deletion controls, and validate the app in a real deployment. The owner password is a simple single-owner gate, not multi-user identity management.
