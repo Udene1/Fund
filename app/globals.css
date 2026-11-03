@@ -46,3 +46,6 @@
 .review-actions button.secondary{background:transparent;border:1px solid var(--line);color:var(--muted)}
 .review-actions button:disabled{opacity:.55}
 @media(max-width:700px){.review-link{margin-left:auto}.private{display:none}.logout{margin-left:8px}}
+
+.export-link{float:right;color:var(--green);text-decoration:none;font-weight:600}
+@media(max-width:700px){.export-link{float:none;display:block;margin-top:10px}}
