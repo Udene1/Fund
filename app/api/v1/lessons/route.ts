@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
-import { authorizeAgent } from "@/lib/auth";
+import { authorizeUserOrAgent } from "@/lib/auth";
 
 const schema = z.object({
   statement: z.string().trim().min(1).max(5000),
@@ -11,7 +11,7 @@ const schema = z.object({
 });
 
 export async function GET(request: NextRequest) {
-  const denied = authorizeAgent(request);
+  const denied = authorizeUserOrAgent(request);
   if (denied) return denied;
   const status = request.nextUrl.searchParams.get("status");
   const data = await prisma.lesson.findMany({
@@ -22,7 +22,7 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
-  const denied = authorizeAgent(request);
+  const denied = authorizeUserOrAgent(request);
   if (denied) return denied;
   const parsed = schema.safeParse(await request.json());
   if (!parsed.success) return NextResponse.json({ error: "Invalid lesson proposal", details: parsed.error.flatten() }, { status: 400 });
