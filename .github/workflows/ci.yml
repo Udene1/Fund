@@ -14,7 +14,6 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-          cache: npm
       - run: npm install
       - run: npx prisma validate
         env:
@@ -22,4 +21,9 @@ jobs:
       - run: npx prisma generate
         env:
           DATABASE_URL: postgresql://user:password@localhost:5432/fund
-      - run: npm run typecheck\n      - run: npm test\n      - run: npm run lint
+      - run: npm run typecheck
+      - run: npm test
+      - run: npm run lint
+      - run: npm run build
+        env:
+          DATABASE_URL: postgresql://user:password@localhost:5432/fund
