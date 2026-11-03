@@ -36,4 +36,4 @@ AI-assisted analysis and semantic retrieval will be added only with clear proven
 
 ## Status
 
-The first application slice is now in place: Next.js dashboard shell, PostgreSQL/Prisma data model, authenticated event CRUD API, and deterministic text/tag search. See [implementation status](docs/IMPLEMENTATION.md) for setup instructions and known gaps.
+The first application slices are in place: Next.js dashboard shell, PostgreSQL/Prisma data model, authenticated event/decision/reflection/lesson/policy/outcome APIs, deterministic search, decision briefs, and a bearer-protected Streamable HTTP MCP endpoint. See [implementation status](docs/IMPLEMENTATION.md) for setup instructions and known gaps. See [implementation status](docs/IMPLEMENTATION.md) for setup instructions and known gaps.
