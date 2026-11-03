@@ -13,7 +13,7 @@ export async function POST(request: NextRequest) {
   const { situation, tags, limit = 10 } = parsed.data;
   const terms = situation.split(/\s+/).filter(term => term.length > 2).slice(0, 12);
   const events = await prisma.event.findMany({
-    where: { archivedAt: null, AND: terms.map(term => ({ OR: [
+    where: { archivedAt: null, OR: terms.map(term => ({ OR: [
       { title: { contains: term, mode: "insensitive" } },
       { originalAccount: { contains: term, mode: "insensitive" } },
       { context: { contains: term, mode: "insensitive" } },
