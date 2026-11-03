@@ -36,4 +36,4 @@ AI-assisted analysis and semantic retrieval will be added only with clear proven
 
 ## Status
 
-The repository was empty at project start. This README establishes the product direction before implementation.
+The first application slice is now in place: Next.js dashboard shell, PostgreSQL/Prisma data model, authenticated event CRUD API, and deterministic text/tag search. See [implementation status](docs/IMPLEMENTATION.md) for setup instructions and known gaps.
