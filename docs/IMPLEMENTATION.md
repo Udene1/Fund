@@ -1,14 +1,16 @@
 # Implementation status
 
-## First vertical slice
+## Implemented
 
-The initial application layer contains:
-- Next.js App Router shell and a minimal event-capture dashboard.
+- Next.js App Router dashboard shell.
 - PostgreSQL persistence through Prisma.
-- Event create/list/read/update/archive endpoints.
-- Authenticated agent-facing event and search APIs.
-- Deterministic text-and-tag search (not semantic search).
-- Initial relational models for decisions, reflections, lessons, policies and outcomes.
+- Event create/list/read/update/archive API.
+- Decision create/list API with optional source event and preserved rationale.
+- Reflection, lesson, policy and outcome data models.
+- Lesson and policy proposal APIs with explicit accept/revise/retire actions.
+- Deterministic text-and-tag event search.
+- Decision brief endpoint that returns source-linked event history and accepted lessons/policies.
+- Agent API requests are protected by a bearer token; no model provider or model API key is required.
 
 ## Local setup
 
@@ -20,44 +22,29 @@ The initial application layer contains:
 6. Run `npx prisma db push`.
 7. Run `npm run dev`.
 
-The web dashboard currently requires a working database at render time. The agent API requires `Authorization: Bearer $FUND_AGENT_TOKEN`.
+The dashboard currently requires a working database at render time. The API requires `Authorization: Bearer $FUND_AGENT_TOKEN`.
 
 ## API
 
-- `GET /api/v1/events`
-- `POST /api/v1/events`
-- `GET /api/v1/events/:id`
-- `PATCH /api/v1/events/:id`
-- `DELETE /api/v1/events/:id` (soft archive)
+- `GET/POST /api/v1/events`
+- `GET/PATCH/DELETE /api/v1/events/:id`
+- `GET/POST /api/v1/decisions`
+- `GET/POST /api/v1/lessons`
+- `POST /api/v1/lessons/:id/review`
+- `GET/POST /api/v1/policies`
+- `POST /api/v1/policies/:id/review`
 - `POST /api/v1/search`
+- `POST /api/v1/decision-briefs`
 
-Example event payload:
-
-```json
-{
-  "title": "A difficult conversation",
-  "originalAccount": "My original account, in my own words.",
-  "occurredAtNote": "Sometime last week",
-  "tags": ["communication"],
-  "importance": 3
-}
-```
-
-Example request:
-
-```bash
-curl -X POST "$FUND_URL/api/v1/events" \
-  -H "Authorization: Bearer $FUND_AGENT_TOKEN" \
-  -H "Content-Type: application/json" \
-  -d '{"title":"A difficult conversation","originalAccount":"My original account."}'
-```
+Lesson and policy proposals remain `PROPOSED` until explicitly accepted. Source event IDs are mandatory for both.
 
 ## Known gaps before production
 
-- Human sign-in/session UX is not implemented.
-- The dashboard capture form is a visual shell; use the authenticated REST API for capture until the form action is wired.
-- Decision/reflection/lesson/policy/outcome CRUD routes are not implemented yet.
+- Human sign-in/session UX and browser event capture are not implemented.
+- Reflection and outcome write/read routes are not implemented yet.
+- Policy revision history and a general audit log need implementation.
 - MCP adapter is not implemented yet.
+- Search is lexical and deterministic, not semantic; decision briefs can miss paraphrases and counterexamples.
 - No migrations have been generated or applied.
 - No automated tests or deployment validation have been run.
-- Do not deploy with real personal data until human authentication, rate limiting, backups, and privacy controls are complete.
+- Do not deploy with real personal data until human authentication, rate limiting, backups, export and privacy controls are complete.
