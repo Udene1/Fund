@@ -9,7 +9,7 @@ export async function GET(request: NextRequest, context: Context) {
   const denied = authorizeAgent(request);
   if (denied) return denied;
   const { id } = await context.params;
-  const event = await prisma.event.findUnique({ where: { id }, include: { decisions: true, reflections: true, lessonLinks: { include: { lesson: true } }, policyLinks: { include: { policy: true } } } });
+  const event = await prisma.event.findUnique({ where: { id }, include: { decisions: true, reflections: true, revisions: { orderBy: { changedAt: 'desc' } }, lessonLinks: { include: { lesson: true } }, policyLinks: { include: { policy: true } } } });
   if (!event || event.archivedAt) return NextResponse.json({ error: "Event not found" }, { status: 404 });
   return NextResponse.json({ data: event });
 }
