@@ -30,8 +30,8 @@ export default async function Home() {
         <form action="/api/v1/events" method="post" className="capture-form">
           <label htmlFor="title">Short title</label><input id="title" name="title" placeholder="What happened?" required maxLength={160} />
           <label htmlFor="originalAccount">Your account</label><textarea id="originalAccount" name="originalAccount" placeholder="Write it as you remember it. Rough notes are fine." required rows={5} />
-          <button type="submit">Capture event <span>→</span></button>
-          <small>Events are stored privately in your database. This form requires the app's server-side capture handler.</small>
+          <button type="button" disabled aria-disabled="true">Capture form coming next <span>→</span></button>
+          <small>The capture API is available to authorized agents. Human sign-in and browser capture are the next implementation step.</small>
         </form>
       </section>
       <section className="recent"><div className="section-heading"><div><p className="eyebrow">YOUR RECORD</p><h2>Recently captured</h2></div><span>{eventCount} total</span></div>
