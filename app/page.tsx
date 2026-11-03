@@ -11,15 +11,16 @@ export const dynamic = "force-dynamic";
 export default async function Home() {
   const jar = await cookies();
   if (!verifySessionToken(jar.get(sessionCookieName)?.value)) redirect("/login");
-  const [eventCount, decisionCount, lessonCount, policyCount, recentEvents] = await Promise.all([
+  const [eventCount, decisionCount, lessonCount, policyCount, reviewCount, recentEvents] = await Promise.all([
     prisma.event.count({ where: { archivedAt: null } }),
     prisma.decision.count(),
     prisma.lesson.count(),
     prisma.policy.count({ where: { status: "ACCEPTED" } }),
+    prisma.lesson.count({ where: { status: "PROPOSED" } }).then(async lessons => lessons + await prisma.policy.count({ where: { status: "PROPOSED" } })),
     prisma.event.findMany({ where: { archivedAt: null }, orderBy: { capturedAt: "desc" }, take: 8 }),
   ]);
   return <main className="shell">
-    <header className="topbar"><div className="mark">F</div><div><div className="brand">fund</div><div className="subbrand">PERSONAL DECISION INTELLIGENCE</div></div><span className="private">PRIVATE MEMORY</span><LogoutButton/></header>
+    <header className="topbar"><div className="mark">F</div><div><div className="brand">fund</div><div className="subbrand">PERSONAL DECISION INTELLIGENCE</div></div><Link href="/review" className="review-link">Review proposals <b>{reviewCount}</b></Link><span className="private">PRIVATE MEMORY</span><LogoutButton/></header>
     <section className="hero"><p className="eyebrow">YOUR EXPERIENCES, AVAILABLE WHEN THEY MATTER</p><h1>Remember what<br/><em>you learned.</em></h1><p className="intro">A durable record of what happened, what you decided, why you decided it, and what you want to carry forward.</p></section>
     <section className="stats"><Stat label="Events captured" value={eventCount}/><Stat label="Decisions recorded" value={decisionCount}/><Stat label="Lessons proposed" value={lessonCount}/><Stat label="Active policies" value={policyCount}/></section>
     <section className="capture"><div><p className="eyebrow">CAPTURE A MOMENT</p><h2>Don&apos;t lose the original story.</h2><p className="muted">Save the account first. Structure and interpretation can come later. You can write rough notes; the original account is preserved.</p></div><CaptureForm/></section>
