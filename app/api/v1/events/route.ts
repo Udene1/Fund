@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
-import { authorizeAgent } from "@/lib/auth";
+import { authorizeUserOrAgent } from "@/lib/auth";
 
 const createEventSchema = z.object({
   title: z.string().trim().min(1).max(160),
@@ -14,7 +14,7 @@ const createEventSchema = z.object({
 });
 
 export async function GET(request: NextRequest) {
-  const denied = authorizeAgent(request);
+  const denied = authorizeUserOrAgent(request);
   if (denied) return denied;
   const limit = Math.min(Number(request.nextUrl.searchParams.get("limit") ?? 30), 100);
   const events = await prisma.event.findMany({
@@ -26,7 +26,7 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
-  const denied = authorizeAgent(request);
+  const denied = authorizeUserOrAgent(request);
   if (denied) return denied;
   const parsed = createEventSchema.safeParse(await request.json());
   if (!parsed.success) return NextResponse.json({ error: "Invalid event", details: parsed.error.flatten() }, { status: 400 });
