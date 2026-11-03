@@ -22,7 +22,7 @@
 6. Run `npx prisma db push`.
 7. Run `npm run dev`.
 
-The dashboard requires a working database at render time. The owner password and session secret must be configured in the hosting environment; never commit `.env`. API routes accept the signed owner session or `Authorization: Bearer $FUND_AGENT_TOKEN`, except the MCP endpoint, which requires the agent token. The browser dashboard requires a valid signed session cookie. Browser capture uses `POST /api/v1/capture`. Event detail pages support owner-authored decisions and reflections; `/review` is the approval queue for proposed lessons and policies.
+The dashboard requires a working database at render time. The owner password and session secret must be configured in the hosting environment; never commit `.env`. API routes accept the signed owner session or `Authorization: Bearer $FUND_AGENT_TOKEN`, except the MCP endpoint, which requires the agent token. The browser dashboard requires a valid signed session cookie. Browser capture uses `POST /api/v1/capture`. Event detail pages support owner-authored decisions and reflections; `/review` is the approval queue for agent reflections, lessons and policies.
 
 ## API
 
@@ -48,7 +48,7 @@ Lesson and policy proposals remain `PROPOSED` until explicitly accepted. Source 
 ## Known gaps before production
 
 - Single-owner password sign-in, random signed 14-day HTTP-only sessions, sign-out, protected dashboard and browser event capture are implemented. Configure `FUND_OWNER_PASSWORD` and `FUND_SESSION_SECRET`.
-- Reflection and outcome read/write routes are implemented. Owner reflections are marked `USER`; agent reflections remain proposed and carry optional provenance.
+- Reflection and outcome read/write routes are implemented. Owner reflections are marked `USER` and accepted as the owner's own account; agent reflections remain proposed and can be reviewed.
 - A general audit log and policy revision history need implementation.
 - Search is lexical and deterministic, not semantic; decision briefs can miss paraphrases and counterexamples.
 - Full JSON export is implemented; deletion controls remain outstanding.
