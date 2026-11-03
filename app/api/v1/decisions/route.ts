@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
-import { authorizeAgent } from "@/lib/auth";
+import { authorizeUserOrAgent } from "@/lib/auth";
 
 const schema = z.object({
   title: z.string().trim().min(1).max(160),
@@ -14,7 +14,7 @@ const schema = z.object({
 });
 
 export async function GET(request: NextRequest) {
-  const denied = authorizeAgent(request);
+  const denied = authorizeUserOrAgent(request);
   if (denied) return denied;
   const take = Math.min(Math.max(Number(request.nextUrl.searchParams.get("limit") ?? 30), 1), 100);
   const data = await prisma.decision.findMany({ include: { event: true, outcomes: true }, orderBy: { createdAt: "desc" }, take });
@@ -22,7 +22,7 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
-  const denied = authorizeAgent(request);
+  const denied = authorizeUserOrAgent(request);
   if (denied) return denied;
   const parsed = schema.safeParse(await request.json());
   if (!parsed.success) return NextResponse.json({ error: "Invalid decision", details: parsed.error.flatten() }, { status: 400 });
