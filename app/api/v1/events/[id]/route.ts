@@ -33,9 +33,17 @@ export async function PATCH(request: NextRequest, context: Context) {
   if (!parsed.success) return NextResponse.json({ error: "Invalid update", details: parsed.error.flatten() }, { status: 400 });
   const { archived, occurredAt, ...fields } = parsed.data;
   try {
-    const event = await prisma.event.update({
-      where: { id },
-      data: { ...fields, ...(occurredAt !== undefined ? { occurredAt: occurredAt ? new Date(occurredAt) : null } : {}), ...(archived !== undefined ? { archivedAt: archived ? new Date() : null } : {}) },
+    const current = await prisma.event.findUnique({ where: { id } });
+    if (!current) return NextResponse.json({ error: "Event not found" }, { status: 404 });
+    const narrativeChanged = (fields.title !== undefined && fields.title !== current.title) || (fields.originalAccount !== undefined && fields.originalAccount !== current.originalAccount);
+    const event = await prisma.$transaction(async tx => {
+      if (narrativeChanged) {
+        await tx.eventRevision.create({ data: { eventId: id, title: current.title, originalAccount: current.originalAccount, changeNote: "Snapshot before user/agent edit" } });
+      }
+      return tx.event.update({
+        where: { id },
+        data: { ...fields, ...(occurredAt !== undefined ? { occurredAt: occurredAt ? new Date(occurredAt) : null } : {}), ...(archived !== undefined ? { archivedAt: archived ? new Date() : null } : {}) },
+      });
     });
     return NextResponse.json({ data: event });
   } catch {
