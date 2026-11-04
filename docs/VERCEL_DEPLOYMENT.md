@@ -12,49 +12,51 @@
 - Preview deployments: Vercel Authentication enabled
 - Production: application-level Fund sign-in; Vercel Authentication is preview-only
 
-## Provision Neon Postgres
+## Database architecture
 
-The Neon Marketplace integration is already installed on the Vercel team, but no database resource is connected to Fund yet.
+Fund uses its own Vercel-managed Neon Postgres resource. It must not use the legacy shared `DATABASE_URL`.
 
-1. Open the [Fund project in Vercel](https://vercel.com/udenes-projects-8089646b/fund).
-2. Open **Storage** and choose **Create Database** / **Neon**. Alternatively, open the [Neon Marketplace product](https://vercel.com/marketplace/neon/neon).
-3. Choose the Vercel-managed Neon Postgres product and the Free plan.
-4. Choose region `lhr1` (London), close to the Vercel Functions region.
-5. Connect the database to the `fund` project for **Production**, **Preview**, and **Development**. Let Vercel inject the connection variables; do not paste database credentials into GitHub.
-6. Confirm that `DATABASE_URL` exists in the Fund project's Vercel environment variables.
+- Dedicated Neon resource: `fund-database`
+- Vercel Neon store ID: `store_9wAMh0GfsJtbfgAg`
+- Neon region: London / `eu-west-2`
+- Prisma datasource environment variable: `FUND_DB_DATABASE_URL`
+- Vercel environment targets: Production and Preview
 
-The project uses Prisma with `DATABASE_URL`. Use Neon's pooled connection string for the application. Keep database credentials in Vercel's encrypted environment-variable store.
+The Neon integration injects the connection string into Vercel's encrypted environment-variable store. Do not copy database credentials into GitHub, source files, logs, or chat. The legacy `DATABASE_URL` belongs to a separate shared Neon resource and must not be used by Fund.
 
-## First database initialization
+## Prisma schema lifecycle
 
-After Neon is connected:
+The Prisma schema is in `prisma/schema.prisma`. The application build generates the Prisma client; it does not automatically change the database schema.
 
-1. Verify `DATABASE_URL` is present in the intended environments.
-2. Run `npx prisma generate`.
-3. Run `npx prisma db push` against the new, empty Fund database.
-4. Deploy the current `main` branch and wait for a successful build.
-5. Open the production URL, sign in, capture a test event, and confirm it appears after refresh.
-6. Download a JSON export and verify it contains the test event, then remove the test event using the eventual deletion workflow (not implemented yet). Until deletion exists, use only a clearly marked test event and do not add sensitive records.
+For a new or intentionally reset Fund database:
 
-## Vercel environment variables already configured
+1. Confirm the Vercel environment variable `FUND_DB_DATABASE_URL` is attached to the dedicated store above.
+2. Verify the database identity and inspect its existing public tables before writing.
+3. Run `npx prisma db push` only against the verified, empty Fund database.
+4. Run the application build and tests.
+5. Smoke-test sign-in, event capture, retrieval after refresh, and export using clearly marked non-sensitive test data.
 
-These sensitive variables have been created for Production, Preview, and Development:
+Do not run `db push` against the legacy shared database. Do not make schema changes automatically on every production deployment. For future production schema evolution, introduce reviewed Prisma migrations and use `prisma migrate deploy`.
+
+## Environment variables
+
+The following application secrets are configured in Vercel for Production, Preview, and Development:
 
 - `FUND_OWNER_PASSWORD`
 - `FUND_SESSION_SECRET`
 - `FUND_AGENT_TOKEN`
 
-Their values are intentionally not stored in this repository. The owner password was generated for initial access and should be rotated after first sign-in.
+Their values are intentionally not stored in this repository. Rotate the initial owner password after first sign-in. Database connection values are managed by the Neon integration and remain encrypted in Vercel.
 
-## Current status
+## Current deployment state
 
-- [x] Vercel project created and linked to GitHub repository.
-- [x] Next.js framework and Node.js 22 configured.
+- [x] Vercel project connected to `Udene1/Fund`.
 - [x] Function region set to London (`lhr1`).
-- [x] Vercel Authentication retained for Preview; production relies on Fund's own login.
-- [x] Owner and agent secrets configured in Vercel.
-- [ ] Neon database resource connected to the Fund project.
-- [ ] `DATABASE_URL` provisioned by Neon.
-- [ ] Prisma schema pushed to Neon.
-- [ ] First successful Vercel deployment.
-- [ ] Production capture/retrieval smoke test.
+- [x] Preview protection enabled; production uses Fund's own sign-in.
+- [x] Owner and agent secrets configured.
+- [x] Dedicated Neon resource provisioned in London.
+- [x] Dedicated Neon resource connected to Fund's Production and Preview environments.
+- [x] Prisma datasource switched from the legacy shared `DATABASE_URL` to `FUND_DB_DATABASE_URL`.
+- [x] Production deployment for the datasource change completed successfully.
+- [ ] Verify the dedicated database is empty and initialize the Prisma schema.
+- [ ] Run production application smoke tests.
