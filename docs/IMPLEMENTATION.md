@@ -15,11 +15,11 @@
 ## Local setup
 
 1. Copy `.env.example` to `.env`.
-2. Set a private PostgreSQL `DATABASE_URL`.
+2. Set `FUND_DB_DATABASE_URL` to a private PostgreSQL connection string. In Vercel, this is injected by Fund's dedicated Neon integration; do not use the legacy shared `DATABASE_URL`.
 3. Generate a long random `FUND_AGENT_TOKEN`, `FUND_SESSION_SECRET` (at least 32 characters), and a unique `FUND_OWNER_PASSWORD`.
 4. Run `npm install`.
 5. Run `npx prisma generate`.
-6. Run `npx prisma db push`.
+6. Run `npx prisma db push` only after verifying the target is Fund's dedicated, empty Neon database.
 7. Run `npm run dev`.
 
 The dashboard requires a working database at render time. The owner password and session secret must be configured in the hosting environment; never commit `.env`. API routes accept the signed owner session or `Authorization: Bearer $FUND_AGENT_TOKEN`, except the MCP endpoint, which requires the agent token. The browser dashboard requires a valid signed session cookie. Browser capture uses `POST /api/v1/capture`. Event detail pages support owner-authored decisions and reflections; `/review` is the approval queue for agent reflections, lessons and policies.
@@ -53,6 +53,6 @@ Agent reflection, lesson and policy proposals remain `PROPOSED` until explicitly
 - A general audit log and policy revision history need implementation.
 - Search is lexical and deterministic, not semantic; decision briefs can miss paraphrases and counterexamples.
 - Full JSON export is implemented; deletion controls remain outstanding.
-- No migrations have been generated or applied; first database setup currently uses `prisma db push`.
+- No migrations have been generated or applied yet; the initial schema is intended to be applied once to the verified, empty Fund database with `prisma db push`. Future production schema changes should use reviewed Prisma migrations and `prisma migrate deploy`.
 - Unit tests and CI validation are configured; check the latest GitHub Actions run before treating the build as verified.
 - Before production use with sensitive personal records, add rate limiting/login throttling, backup storage and restore tests, deletion controls, and validate the app in a real deployment. The owner password is a simple single-owner gate, not multi-user identity management.
