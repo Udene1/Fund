@@ -32,7 +32,7 @@ For a new or intentionally reset Fund database:
 
 1. Confirm the Vercel environment variable `FUND_DB_DATABASE_URL` is attached to the dedicated store above.
 2. Verify the database identity and inspect its existing public tables before writing.
-3. Run `npx prisma db push` only against the verified, empty Fund database.
+3. Run `npm run db:bootstrap`. This checks the database identity and refuses to proceed unless the database is empty or already has the exact Fund table set; it then applies the Prisma schema.
 4. Run the application build and tests.
 5. Smoke-test sign-in, event capture, retrieval after refresh, and export using clearly marked non-sensitive test data.
 
