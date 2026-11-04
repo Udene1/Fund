@@ -58,5 +58,6 @@ Their values are intentionally not stored in this repository. Rotate the initial
 - [x] Dedicated Neon resource connected to Fund's Production and Preview environments.
 - [x] Prisma datasource switched from the legacy shared `DATABASE_URL` to `FUND_DB_DATABASE_URL`.
 - [x] Production deployment for the datasource change completed successfully.
-- [ ] Verify the dedicated database is empty and initialize the Prisma schema.
-- [ ] Run production application smoke tests.
+- [x] Verify the dedicated database is empty and initialize the Prisma schema (9 expected tables verified).
+- [x] Deploy the initialized application successfully to Production in London (`lhr1`).
+- [ ] Run owner sign-in and browser/API smoke tests with a real owner session.
